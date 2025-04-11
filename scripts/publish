@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import shutil
+import tomllib
 
 from pathlib import Path
 
@@ -11,11 +11,7 @@ print(f"Project Root: {PROJECT_ROOT}")
 BUILD_DIR = PROJECT_ROOT / "build"
 print(f"Build Directory: {BUILD_DIR}")
 
-if len(sys.argv) != 2:
-    print("Usage: publish.py <version>")
-    sys.exit(1)
-
-version = sys.argv[1]
+VERSION = tomllib.loads((PROJECT_ROOT / "typst.toml").read_text())["package"]["version"]
 
 if BUILD_DIR.exists():
     print("Cleaning up build directory...")
@@ -28,10 +24,10 @@ os.chdir(BUILD_DIR)
 os.system("git sparse-checkout set --no-cone /packages/preview/tapestry")
 os.system("git checkout")
 os.system("git remote set-url origin https://github.com/BrandenXia/typst-packages")
-os.system(f"git switch -c {version}")
+os.system(f"git switch -c {VERSION}")
 
 print("Copying files...")
-dst = BUILD_DIR / "packages" / "preview" / "tapestry" / version
+dst = BUILD_DIR / "packages" / "preview" / "tapestry" / VERSION
 INCLUDED_FILES = [
     "template",
     "lib.typ",
@@ -50,7 +46,7 @@ for file in INCLUDED_FILES:
     else:
         shutil.copy(src, dst / file)
 os.system("git add .")
-os.system(f'git commit -m "tapestry:{version}"')
+os.system(f'git commit -m "tapestry:{VERSION}"')
 
 print("Pushing to remote...")
 os.system("git push origin HEAD")
