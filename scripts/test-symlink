@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+
+import os
+
+from platform import system
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.absolute()
+print(f"Project Root: {PROJECT_ROOT}")
+
+SYSTEM = system()
+# fmt: off
+DATA_DIR = (
+    "~/.local/share" if SYSTEM == "Linux"
+    else "~/Library/Application Support" if SYSTEM == "Darwin"
+    else os.getenv("APPDATA")
+)
+# fmt: on
+if DATA_DIR is None:
+    raise ValueError("Unsupported OS")
+DATA_DIR = Path(DATA_DIR).expanduser()
+
+PKG_DIR = DATA_DIR / "typst" / "packages" / "preview" / "tapestry" / "test"
+print(f"Package Directory: {PKG_DIR}")
+
+print()
+
+print(f"Creating directory: {PKG_DIR.parent}")
+PKG_DIR.parent.mkdir(parents=True, exist_ok=True)
+
+if PKG_DIR.exists():
+    print(f"Removing existing symlink: {PKG_DIR}")
+    PKG_DIR.unlink()
+print(f"Creating symlink: {PKG_DIR}")
+os.symlink(PROJECT_ROOT, PKG_DIR, target_is_directory=True)
+
+print("Done.")

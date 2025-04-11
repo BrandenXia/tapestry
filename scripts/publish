@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import shutil
+
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.absolute()
+print(f"Project Root: {PROJECT_ROOT}")
+BUILD_DIR = PROJECT_ROOT / "build"
+print(f"Build Directory: {BUILD_DIR}")
+
+if len(sys.argv) != 2:
+    print("Usage: publish.py <version>")
+    sys.exit(1)
+
+version = sys.argv[1]
+
+if BUILD_DIR.exists():
+    print("Cleaning up build directory...")
+    BUILD_DIR.rmdir()
+
+os.system(
+    f"git clone -n --depth=1 --filter=tree:0 https://github.com/typst/packages.git {BUILD_DIR}"
+)
+os.chdir(BUILD_DIR)
+os.system("git sparse-checkout set --no-cone /packages/preview/tapestry")
+os.system("git checkout")
+os.system("git remote set-url origin https://github.com/BrandenXia/typst-packages")
+os.system(f"git switch -c {version}")
+
+print("Copying files...")
+dst = BUILD_DIR / "packages" / "preview" / "tapestry" / version
+INCLUDED_FILES = [
+    "template",
+    "lib.typ",
+    "LICENSE",
+    "README.md",
+    "thumbnail.png",
+    "typst.toml",
+]
+for file in INCLUDED_FILES:
+    src = PROJECT_ROOT / file
+    if not src.exists():
+        print(f"Warning: {src} does not exist, skipping...")
+        continue
+    if src.is_dir():
+        shutil.copytree(src, dst / file, dirs_exist_ok=True)
+    else:
+        shutil.copy(src, dst / file)
+os.system("git add .")
+os.system(f'git commit -m "tapestry:{version}"')
+
+print("Pushing to remote...")
+os.system("git push origin HEAD")
+
+print("Done")
