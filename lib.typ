@@ -1,10 +1,14 @@
+#import "@preview/equate:0.3.1": equate
+
 #let tapestry(
   title: [],
   year: [],
+  author: [],
   doc,
 ) = {
   set document(
     title: title,
+    author: author,
   )
 
   set page(
@@ -18,7 +22,7 @@
       #h(1fr)
       #year
     ],
-    header-ascent: 42.5%
+    header-ascent: 42.5%,
   )
 
   set heading(
@@ -33,17 +37,13 @@
   )
 
   set math.equation(
-    numbering: "(1)",
+    numbering: "(1.1)",
     supplement: "Eq."
   )
-  show math.equation: it => {
-    if it.block and not it.has("label") [
-      #counter(math.equation).update(v => v - 1)
-      #math.equation(it.body, block: true, numbering: none)#label("")
-    ] else {
-      it
-    }  
-  }
+  show: equate.with(
+    number-mode: "label",
+    sub-numbering: true
+  )
 
   outline()
 
@@ -51,3 +51,5 @@
 
   doc
 }
+
+#import "@preview/physica:0.9.5" : vecrow, va, vu, vb, dd, dv, pdv, hbar, grad, div, curl
