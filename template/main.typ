@@ -1,4 +1,4 @@
-#import "@preview/tapestry:0.0.1": *
+#import "@preview/tapestry:0.0.2": *
 
 #show: tapestry.with(
   title: "Title Here",
