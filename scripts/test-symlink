@@ -22,18 +22,19 @@ if DATA_DIR is None:
 DATA_DIR = Path(DATA_DIR).expanduser()
 
 VERSION = tomllib.loads((PROJECT_ROOT / "typst.toml").read_text())["package"]["version"]
-PKG_DIR = DATA_DIR / "typst" / "packages" / "preview" / "tapestry" / VERSION
+PKG_DIR = DATA_DIR / "typst" / "packages" / "preview" / "tapestry"
 print(f"Package Directory: {PKG_DIR}")
 
 print()
 
-print(f"Creating directory: {PKG_DIR.parent}")
-PKG_DIR.parent.mkdir(parents=True, exist_ok=True)
+print(f"Creating directory: {PKG_DIR}")
+PKG_DIR.mkdir(parents=True, exist_ok=True)
 
-if PKG_DIR.exists():
-    print(f"Removing existing symlink: {PKG_DIR}")
-    PKG_DIR.unlink()
-print(f"Creating symlink: {PKG_DIR}")
-os.symlink(PROJECT_ROOT, PKG_DIR, target_is_directory=True)
+for links in PKG_DIR.glob("*"):
+    if links.is_symlink():
+        print(f"Removing existing symlink: {links}")
+        links.unlink()
+print(f"Creating symlink: {PKG_DIR / VERSION}")
+os.symlink(PROJECT_ROOT, PKG_DIR / VERSION, target_is_directory=True)
 
 print("Done.")
