@@ -39,7 +39,7 @@
   )
 
   set text(
-    font: "New Computer Modern",
+    font: "libertinus serif",
     size: 11pt
   )
 
@@ -57,6 +57,23 @@
   linebreak()
 
   doc
+}
+
+#let apply-table(
+  body,
+  x-header: false,
+  y-header: true,
+) = {
+  show table.cell.where(x: 0): set text(weight: "bold") if x-header
+  show table.cell.where(y: 0): set text(weight: "bold") if y-header
+
+  set table(
+    align: center + horizon,
+    row-gutter: (3pt, auto),
+    stroke: (_, y) => if y > 0 { (top: 0.5pt) },
+  )
+
+  body
 }
 
 /// plot functions with colors and domain
@@ -88,7 +105,9 @@
 
   assert(legend in ("inner", "outer", "none"), message: "Legend must be either 'inner', 'outer' or 'none'.")
 
-  let cvs = canvas({
+  set align(center)
+
+  canvas({
     cetz-plot.plot.plot(
       size: size,
       x-tick-step: step.at(0),
@@ -124,8 +143,6 @@
       },
     )
   })
-
-  align(center, cvs)
 }
 
 #import "@preview/physica:0.9.5" : vecrow, va, vu, vb, dd, dv, pdv, hbar, grad, div, curl
