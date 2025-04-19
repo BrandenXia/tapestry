@@ -15,7 +15,7 @@ VERSION = tomllib.loads((PROJECT_ROOT / "typst.toml").read_text())["package"]["v
 
 if BUILD_DIR.exists():
     print("Cleaning up build directory...")
-    BUILD_DIR.rmdir()
+    shutil.rmtree(BUILD_DIR)
 
 os.system(
     f"git clone -n --depth=1 --filter=tree:0 https://github.com/typst/packages.git {BUILD_DIR}"
